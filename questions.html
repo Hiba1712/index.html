@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MoodFlow – أسئلة تحليل المزاج</title>
+<style>
+:root {
+  --primary-500: #6a4fe6;
+  --primary-600: #5a3fe0;
+  --muted: #6b6f76;
+  --card-bg: #ffffff;
+  --surface: #f7f7fb;
+  --radius: 12px;
+  --transition: 240ms cubic-bezier(.2,.9,.3,1);
+}
+
+/* ===== Navbar ===== */
+
+  .nav { width: 100%; background: linear-gradient(90deg, rgba(173,216,230,0.7), rgba(135,206,250,0.7)); box-shadow: 0 6px 20px rgba(0,0,0,0.08); position: sticky; top: 0; z-index: 50; backdrop-filter: blur(6px); transition: background 0.3s ease; }
+  .nav-inner { max-width:1100px; margin:0 auto; padding:12px 20px; display:flex; align-items:center; justify-content:space-between; gap:20px; direction:ltr; }
+  .logo { font-weight:700; letter-spacing:1px; font-size:22px; color:#fff; flex-shrink:0; display:flex; align-items:center; gap:8px; }
+   .logo img {width: 40px; height: 40px; border-radius: 50%; object-fit: cover;}
+  .nav-links { display:flex; gap:20px; list-style:none; margin:0; padding:0; flex-grow:1; justify-content:center; }
+  .nav-link { color:#fff; text-decoration:none; font-weight:600; padding:8px 12px; border-radius:8px; transition:0.3s; }
+  .nav-link:hover { background: rgba(255,255,255,0.12); }
+  .nav-right { display:flex; align-items:center; gap:12px; }
+  .nav-start-btn { background: #00bfff; color:#fff; font-weight:700; padding:10px 16px; border:none; border-radius:8px; cursor:pointer; transition:0.3s; }
+  .nav-start-btn:hover { background:#0099cc; }
+  #language-select { padding:6px 10px; border-radius:8px; border:none; font-weight:600; background: rgba(255,255,255,0.12); color:#fff; cursor:pointer; transition:0.3s; }
+  #language-select:focus { outline:none; }
+* { box-sizing:border-box; }
+html, body { margin:0; font-family:Tahoma, "Segoe UI", Roboto, sans-serif; text-align:center; background: var(--surface); color:#222; transition: background 0.3s, color 0.3s;}
+.question-box { width:350px; background:var(--card-bg); border-radius:22px; padding:30px 25px; text-align:center; box-shadow: 0 8px 25px rgba(100,80,255,0.15),0 2px 6px rgba(0,0,0,0.05); margin:50px auto; animation:fadeIn 0.4s ease;}
+@keyframes fadeIn { from{opacity:0; transform:scale(0.96);} to{opacity:1; transform:scale(1);} }
+.question-text { font-size:19px; font-weight:700; color:#4a3fa8; margin-bottom:22px; line-height:1.5; }
+.option { background:#f5f3ff; padding:14px; margin:10px 0; border-radius:14px; font-size:17px; color:#4a3fa5; cursor:pointer; transition:0.25s ease; box-shadow:0 4px 12px rgba(140,120,255,0.12);}
+.option:hover{ background:#e8e3ff; transform:translateY(-3px);}
+.selected{ background:#cfc5ff !important; border:2px solid #9b89ff; color:#2d2477; box-shadow:0 4px 14px rgba(120,100,255,0.2);}
+.custom-input{ margin-top:12px; display:none; }
+.custom-input input{ width:90%; padding:10px; border-radius:10px; border:1px solid #b8aaff; outline:none; font-size:15px;}
+.submit-btn{ margin-top:10px; padding:10px 16px; background:#7c6cff; color:white; border:none; border-radius:12px; cursor:pointer; transition:0.3s ease;}
+.submit-btn:hover{ background:#6655ff;}
+.finished{ font-size:22px; color:#4f42c2; font-weight:bold; padding:20px; }
+</style>
+</head>
+<body>
+
+
+ 
+
+<!-- ⚡ هنا تضيفي الـ NAVBAR كامل -->
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="logo" aria-label="MoodFlow logo">
+      <img src="logo.jpg.jpeg"  />
+      <span style="color: #007BFF; font-size: 20px; font-weight: bold;">MoodFlow</span>
+    </div>
+    <ul class="nav-links" role="menubar" aria-label="Main menu">
+      <li role="none"><a role="menuitem" href="index.html" class="nav-link" data-lang-key="home">الرئيسية</a></li>
+      <li role="none"><a role="menuitem" href="questions.html" class="nav-link" data-lang-key="mood">تحليل المزاج</a></li>
+      <li role="none"><a role="menuitem" href="todo.html" class="nav-link" data-lang-key="todo">قائمة المهام</a></li>
+      <li role="none"><a role="menuitem" href="premium.html" class="nav-link" data-lang-key="premium">Premium</a></li>
+    </ul>
+    <div class="nav-right">
+      <button class="nav-start-btn" onclick="window.location.href='questions.html'" data-lang-key="start_btn">ابدأ الاختبار</button>
+      <select id="language-select" aria-label="اختر اللغة">
+        <option value="ar">العربية</option>
+        <option value="en">English</option>
+        <option value="fr">Français</option>
+      </select>
+    </div>
+  </div>
+</nav>
+
+
+
+
+<div id="question-container"></div>
+
+<script>
+// ===== اللغة المختارة من الصفحة الرئيسية =====
+let currentLang = localStorage.getItem('selectedLanguage') || 'ar';
+document.documentElement.lang = currentLang;
+document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+
+// ===== البيانات =====
+const allQuestions = { 
+  ar:[
+    {q:"إذا كان مزاجك اليوم لون، أي لون يكون؟", options:[
+      {text:"أصفر مشرق", mood:"عادي"},
+      {text:"رمادي ساكن", mood:"نعسان"},
+      {text:"أحمر شديد", mood:"معصّب"},
+      {text:"أسود باهت", mood:"حزين"},
+      {text:"أخضر نشيط", mood:"طاقة"}
+    ]},
+    {q:"لو يومك كان شخصية كرتونية، أي شخصية يكون؟", options:[
+      {text:"شخصية مرحة", mood:"عادي"},
+      {text:"شخصية مترددة", mood:"نعسان"},
+      {text:"شخصية غاضبة", mood:"معصّب"},
+      {text:"شخصية حزينة", mood:"حزين"},
+      {text:"شخصية نشيطة وحيوية", mood:"طاقة"}
+    ]},
+    {q:"كيف شعرتِ عند التعامل مع الآخرين اليوم؟", options:[
+      {text:"تواصل عادي", mood:"عادي"},
+      {text:"تفاعل مربك بعض الشيء", mood:"نعسان"},
+      {text:"مزعج ومستفز", mood:"معصّب"},
+      {text:"ثقيل ومتعب نفسيًا", mood:"حزين"},
+      {text:"تواصل مليء بالطاقة والحيوية", mood:"طاقة"}
+    ]},
+    {q:"أي كلمة تصف يومك حتى الآن؟", options:[
+      {text:"عادي", mood:"عادي"},
+      {text:"مربك", mood:"نعسان"},
+      {text:"فوضوي", mood:"معصّب"},
+      {text:"متعب", mood:"حزين"},
+      {text:"مليء بالطاقة", mood:"طاقة"}
+    ]},
+    {q:"لو كان يومك مكانًا، أي مكان يكون؟", options:[
+      {text:"مدينة عادية", mood:"عادي"},
+      {text:"نفق ضيق قليل الإضاءة", mood:"نعسان"},
+      {text:"بركان مشتعل أو صحراء قاسية", mood:"معصّب"},
+      {text:"غرفة مظلمة وصامتة", mood:"حزين"},
+      {text:"شاطئ مشمس ونشيط", mood:"طاقة"}
+    ]},
+    {q:"كيف تشعرين تجاه التحديات اليوم؟", options:[
+      {text:"أتعامل بشكل طبيعي", mood:"عادي"},
+      {text:"أشعر بالقلق", mood:"نعسان"},
+      {text:"أشعر بالغضب تجاهها", mood:"معصّب"},
+      {text:"أشعر بثقلها النفسي", mood:"حزين"},
+      {text:"متحمسة وحيوية لمواجهتها", mood:"طاقة"}
+    ]},
+    {q:"لو كان يومك كتابًا، أي فصل يكون؟", options:[
+      {text:"فصل عادي", mood:"عادي"},
+      {text:"فصل متشابك يثير التوتر", mood:"نعسان"},
+      {text:"فصل مليء بالصعوبات والانفعالات", mood:"معصّب"},
+      {text:"فصل درامي حزين", mood:"حزين"},
+      {text:"فصل ممتع مليء بالطاقة والحيوية", mood:"طاقة"}
+    ]},
+    {q:"لو يومك كان مشهد من فيلم، أي نوع يكون؟", options:[
+      {text:"مشهد اعتيادي", mood:"عادي"},
+      {text:"مشهد غامض يثير القلق", mood:"نعسان"},
+      {text:"مشهد صدامي وعنيف", mood:"معصّب"},
+      {text:"مشهد درامي حزين", mood:"حزين"},
+      {text:"مشهد مفعم بالطاقة والحركة", mood:"طاقة"}
+    ]},
+    {q:"لو شعورك اليوم كان عنصرًا من الطبيعة، أي عنصر يكون؟", options:[
+      {text:"ماء هادئ", mood:"عادي"},
+      {text:"ريح مضطربة", mood:"نعسان"},
+      {text:"نار متقدة", mood:"معصّب"},
+      {text:"ضباب كثيف كئيب", mood:"حزين"},
+      {text:"نسيم عليل ونشيط", mood:"طاقة"}
+    ]},
+    {q:"إذا كان بإمكانك إعطاء يومك لقبًا، ماذا سيكون؟", options:[
+      {text:"يوم عادي", mood:"عادي"},
+      {text:"يوم مربك", mood:"نعسان"},
+      {text:"يوم عصيب ومتوتّر", mood:"معصّب"},
+      {text:"يوم ثقيل وكئيب", mood:"حزين"},
+      {text:"يوم مفعم بالطاقة", mood:"طاقة"}
+    ]}
+  ],
+  en:[
+    {q:"If your mood today was a color, which color would it be?", options:[
+      {text:"Bright Yellow", mood:"Normal"},
+      {text:"Grayish", mood:"Sleepy"},
+      {text:"Hot Red", mood:"Angry"},
+      {text:"Dull Black", mood:"Sad"},
+      {text:"Energetic Green", mood:"Energy"}
+    ]},
+    {q:"If your day was a cartoon character, which one?", options:[
+      {text:"Cheerful character", mood:"Normal"},
+      {text:"Hesitant character", mood:"Sleepy"},
+      {text:"Angry character", mood:"Angry"},
+      {text:"Sad character", mood:"Sad"},
+      {text:"Energetic lively character", mood:"Energy"}
+    ]},
+    {q:"How did you feel interacting with others today?", options:[
+      {text:"Normal interaction", mood:"Normal"},
+      {text:"Slightly confusing", mood:"Sleepy"},
+      {text:"Annoying interaction", mood:"Angry"},
+      {text:"Mentally exhausting", mood:"Sad"},
+      {text:"Energetic interaction", mood:"Energy"}
+    ]},
+    {q:"Which word best describes your day so far?", options:[
+      {text:"Normal", mood:"Normal"},
+      {text:"Confusing", mood:"Sleepy"},
+      {text:"Chaotic", mood:"Angry"},
+      {text:"Tiring", mood:"Sad"},
+      {text:"Full of energy", mood:"Energy"}
+    ]},
+    {q:"If your day was a place, which place would it be?", options:[
+      {text:"Normal city", mood:"Normal"},
+      {text:"Dim tunnel", mood:"Sleepy"},
+      {text:"Volcano or harsh desert", mood:"Angry"},
+      {text:"Dark silent room", mood:"Sad"},
+      {text:"Sunny lively beach", mood:"Energy"}
+    ]},
+    {q:"How do you feel about challenges today?", options:[
+      {text:"I handle normally", mood:"Normal"},
+      {text:"A bit anxious", mood:"Sleepy"},
+      {text:"Annoyed by them", mood:"Angry"},
+      {text:"Mentally heavy", mood:"Sad"},
+      {text:"Excited and energetic", mood:"Energy"}
+    ]},
+    {q:"If your day was a book, which chapter would it be?", options:[
+      {text:"Normal chapter", mood:"Normal"},
+      {text:"Tense chapter", mood:"Sleepy"},
+      {text:"Challenging chapter", mood:"Angry"},
+      {text:"Dramatic sad chapter", mood:"Sad"},
+      {text:"Fun lively chapter", mood:"Energy"}
+    ]},
+    {q:"If your day was a movie scene, which genre would it be?", options:[
+      {text:"Regular scene", mood:"Normal"},
+      {text:"Mysterious scene", mood:"Sleepy"},
+      {text:"Conflict/violent scene", mood:"Angry"},
+      {text:"Dramatic sad scene", mood:"Sad"},
+      {text:"Energetic lively scene", mood:"Energy"}
+    ]},
+    {q:"If your feeling today was an element of nature, which element?", options:[
+      {text:"Calm water", mood:"Normal"},
+      {text:"Turbulent wind", mood:"Sleepy"},
+      {text:"Blazing fire", mood:"Angry"},
+      {text:"Dense fog", mood:"Sad"},
+      {text:"Fresh lively breeze", mood:"Energy"}
+    ]},
+    {q:"If you could give your day a title, what would it be?", options:[
+      {text:"Normal day", mood:"Normal"},
+      {text:"Confusing day", mood:"Sleepy"},
+      {text:"Challenging day", mood:"Angry"},
+      {text:"Sad day", mood:"Sad"},
+      {text:"Energetic day", mood:"Energy"}
+    ]}
+  ],
+  fr:[
+    {q:"Si votre humeur aujourd'hui était une couleur, laquelle serait-elle?", options:[
+      {text:"Jaune vif", mood:"Normal"},
+      {text:"Gris", mood:"Endormi"},
+      {text:"Rouge vif", mood:"En colère"},
+      {text:"Noir terne", mood:"Triste"},
+      {text:"Vert énergétique", mood:"Énergie"}
+    ]},
+    {q:"Si votre journée était un personnage de dessin animé, lequel?", options:[
+      {text:"Personnage joyeux", mood:"Normal"},
+      {text:"Personnage hésitant", mood:"Endormi"},
+      {text:"Personnage en colère", mood:"En colère"},
+      {text:"Personnage triste", mood:"Triste"},
+      {text:"Personnage énergique", mood:"Énergie"}
+    ]},
+    {q:"Comment vous êtes-vous senti en interagissant avec les autres aujourd'hui?", options:[
+      {text:"Interaction normale", mood:"Normal"},
+      {text:"Un peu confuse", mood:"Endormi"},
+      {text:"Interaction agaçante", mood:"En colère"},
+      {text:"Fatigante mentalement", mood:"Triste"},
+      {text:"Interaction pleine d'énergie", mood:"Énergie"}
+    ]},
+    {q:"Quel mot décrit le mieux votre journée jusqu'à présent?", options:[
+      {text:"Normal", mood:"Normal"},
+      {text:"Confus", mood:"Endormi"},
+      {text:"Chaotique", mood:"En colère"},
+      {text:"Fatigant", mood:"Triste"},
+      {text:"Plein d'énergie", mood:"Énergie"}
+    ]},
+    {q:"Si votre journée était un lieu, lequel?", options:[
+      {text:"Ville normale", mood:"Normal"},
+      {text:"Tunnel étroit", mood:"Endormi"},
+      {text:"Volcan ou désert difficile", mood:"En colère"},
+      {text:"Chambre sombre et silencieuse", mood:"Triste"},
+      {text:"Plage ensoleillée et vivante", mood:"Énergie"}
+    ]},
+    {q:"Comment vous sentez-vous face aux défis aujourd'hui?", options:[
+      {text:"Je gère normalement", mood:"Normal"},
+      {text:"Un peu anxieux", mood:"Endormi"},
+      {text:"Ils m'énervent", mood:"En colère"},
+      {text:"Lourd mentalement", mood:"Triste"},
+      {text:"Enthousiaste et énergique", mood:"Énergie"}
+    ]},
+    {q:"Si votre journée était un livre, quel chapitre serait-ce?", options:[
+      {text:"Chapitre normal", mood:"Normal"},
+      {text:"Chapitre tendu", mood:"Endormi"},
+      {text:"Chapitre difficile", mood:"En colère"},
+      {text:"Chapitre triste", mood:"Triste"},
+      {text:"Chapitre amusant et énergique", mood:"Énergie"}
+    ]},
+    {q:"Si votre journée était une scène de film, quel genre serait-ce?", options:[
+      {text:"Scène ordinaire", mood:"Normal"},
+      {text:"Scène mystérieuse", mood:"Endormi"},
+      {text:"Scène conflictuelle", mood:"En colère"},
+      {text:"Scène dramatique et triste", mood:"Triste"},
+      {text:"Scène dynamique et énergique", mood:"Énergie"}
+    ]},
+    {q:"Si votre ressenti aujourd'hui était un élément de la nature, lequel?", options:[
+      {text:"Eau calme", mood:"Normal"},
+      {text:"Vent perturbé", mood:"Endormi"},
+      {text:"Feu ardent", mood:"En colère"},
+      {text:"Brouillard dense", mood:"Triste"},
+      {text:"Brise fraîche et vivante", mood:"Énergie"}
+    ]},
+    {q:"Si vous pouviez donner un titre à votre journée, quel serait-il?", options:[
+      {text:"Journée normale", mood:"Normal"},
+      {text:"Journée confuse", mood:"Endormi"},
+      {text:"Journée difficile", mood:"En colère"},
+      {text:"Journée triste", mood:"Triste"},
+      {text:"Journée pleine d'énergie", mood:"Énergie"}
+    ]}
+  ]
+};
+
+let currentIndex = 0;
+let moodCount = {Normal:0, Sleepy:0, Angry:0, Sad:0, Energy:0};
+let optionClicked = false;
+
+// ===== عرض السؤال =====
+function showQuestion(){
+  const container = document.getElementById("question-container");
+  const questions = allQuestions[currentLang];
+  optionClicked = false; // إعادة تعيين العلم لكل سؤال جديد
+
+  if(currentIndex >= questions.length){
+    let dominantMood = Object.keys(moodCount).reduce((a,b)=> moodCount[a]>=moodCount[b]?a:b);
+
+// ===== تحويل المزاج حسب اللغة إلى مفتاح ثابت =====
+const moodMap = {
+  "عادي":"Normal", "طاقة":"Energy", "حزين":"Sad", "معصّب":"Angry", "نعسان":"Sleepy",
+  "Normal":"Normal","Energy":"Energy","Sad":"Sad","Angry":"Angry","Sleepy":"Sleepy",
+  "Endormi":"Sleepy","En colère":"Angry","Triste":"Sad","Énergie":"Energy","Normal":"Normal"
+};
+
+let dominantMoodKey = moodMap[dominantMood] || 'Normal';
+localStorage.setItem('userMood', dominantMoodKey);
+
+    window.location.href = "mood_results.html"; 
+    return;
+  }
+
+  const q = questions[currentIndex];
+  let optionsHTML = "";
+  q.options.forEach(opt=>{
+    optionsHTML += `<div class="option" onclick="selectOption(this,'${opt.mood}')">${opt.text}</div>`;
+  });
+  container.innerHTML = `<div class="question-box"><div class="question-text">${q.q}</div>${optionsHTML}</div>`;
+}
+
+// ===== اختيار جواب =====
+function selectOption(el,mood){
+  if(optionClicked) return; // منع الضغط أكثر من مرة
+  el.classList.add("selected");
+  moodCount[mood]++;
+  optionClicked = true;
+  setTimeout(()=>{ currentIndex++; showQuestion(); }, 350);
+}
+
+// ===== تشغيل السؤال =====
+showQuestion();
+
+
+
+
+  // ===== Language =====
+  const languageSelect = document.getElementById("language-select");
+  const translations = {
+    ar: { home:"الرئيسية", mood:"تحليل المزاج", todo:"قائمة المهام", premium:"Premium",
+          hero_title:"نظّم يومك حسب مزاجك", hero_text:"حلّل حالتك النفسية اليوم واحصل على نصائح وتمارين تناسبك.",
+          start_btn:"ابدأ الاختبار", mood_title:"اختار المزاج تاعك:", sad:"حزين", angry:"معصّب", sleepy:"نعسان", normal:"عادي", energy:"طاقة",
+          feature1:"🔍 تحليل المزاج", feature2:"📝 مهام يومية", feature3:"🎧 صوتيات مهدّئة", feature4:"👤 تحليل المزاج من الوجه (قريبًا)"
+    },
+    en: { home:"Home", mood:"Mood Analysis", todo:"To-Do List", premium:"Premium",
+          hero_title:"Organize your day according to your mood", hero_text:"Analyze your mood today and get tips & exercises.",
+          start_btn:"Start Test", mood_title:"Choose your mood:", sad:"Sad", angry:"Angry", sleepy:"Sleepy", normal:"Normal", energy:"Energy",
+          feature1:"Mood Analysis", feature2:"Daily Tasks", feature3:"Relaxing Audios", feature4:"Face Mood Detection (Soon)"
+    },
+    fr: { home:"Accueil", mood:"Analyse de l'humeur", todo:"To-Do List", premium:"Premium",
+          hero_title:"Organisez votre journée selon votre humeur", hero_text:"Analysez votre humeur aujourd'hui et obtenez des conseils & exercices.",
+          start_btn:"Commencer le test", mood_title:"Choisissez votre humeur :", sad:"Triste", angry:"En colère", sleepy:"Fatigué", normal:"Normal", energy:"Énergie",
+          feature1:"Analyse de l'humeur", feature2:"Tâches quotidiennes", feature3:"Audios relaxants", feature4:"Analyse de l'humeur par visage (Bientôt)"
+    }
+  };
+
+  function setLanguage(lang) {
+    document.querySelectorAll("[data-lang-key]").forEach(el => {
+      const key = el.getAttribute("data-lang-key");
+      if (translations[lang] && translations[lang][key]) {
+        el.textContent = translations[lang][key];
+      }
+    });
+    localStorage.setItem("selectedLanguage", lang);
+  }
+
+  // تطبيق اللغة اللي مخزنة
+  const savedLang = localStorage.getItem("selectedLanguage") || "ar";
+  languageSelect && (languageSelect.value = savedLang);
+  setLanguage(savedLang);
+
+  // تبديل اللغة
+ languageSelect && languageSelect.addEventListener("change", (e) => {
+  const lang = e.target.value;
+  setLanguage(lang);
+
+  // تحديث اللغة للأسئلة
+  currentLang = lang;
+  currentIndex = 0;
+  moodCount = {Normal:0, Sleepy:0, Angry:0, Sad:0, Energy:0};
+
+  showQuestion(); // إعادة عرض السؤال باللغة الجديدة
+});
+</script>
+</body>
+</html>

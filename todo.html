@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MoodFlow – Todo List</title>
+<style>
+   /* ===== Navbar ===== */
+  .nav { width: 100%; background: linear-gradient(90deg, rgba(173,216,230,0.7), rgba(135,206,250,0.7)); box-shadow: 0 6px 20px rgba(0,0,0,0.08); position: sticky; top: 0; z-index: 50; backdrop-filter: blur(6px); transition: background 0.3s ease; }
+  .nav-inner { max-width:1100px; margin:0 auto; padding:12px 20px; display:flex; align-items:center; justify-content:space-between; gap:20px; direction:ltr; }
+  .logo { font-weight:900; letter-spacing:1px; font-size:40px; color: rgba(135,206,250,0.7); flex-shrink:0; display:flex; align-items:center; gap:8px; }
+   .logo img {width: 40px; height: 40px; border-radius: 50%; object-fit: cover;}
+  .nav-links { display:flex; gap:20px; list-style:none; margin:0; padding:0; flex-grow:1; justify-content:center; }
+  .nav-link { color:#fff; text-decoration:none; font-weight:600; padding:8px 12px; border-radius:8px; transition:0.3s; }
+  .nav-link:hover { background: rgba(255,255,255,0.12); }
+  .nav-right { display:flex; align-items:center; gap:12px; }
+  .nav-start-btn { background: #00bfff; color:#fff; font-weight:700; padding:10px 16px; border:none; border-radius:8px; cursor:pointer; transition:0.3s; }
+  .nav-start-btn:hover { background:#0099cc; }
+  #language-select { padding:6px 10px; border-radius:8px; border:none; font-weight:600; background: rgba(255,255,255,0.12); color:#fff; cursor:pointer; transition:0.3s; }
+  #language-select:focus { outline:none; }
+
+:root {
+  --primary-500: #6a4fe6;
+  --card-bg: #ffffff;
+  --surface: #f7f7fb;
+  --task-bg: #f0f0ff;
+  --task-bg-dark: #2a2a3a;
+}
+* { box-sizing: border-box; }
+body { margin:0; font-family:Tahoma,Segoe UI,Roboto,sans-serif; background:var(--surface); color:#222; }
+.container { max-width:800px; margin:40px auto; padding:20px; }
+h1 { color:var(--primary-500); text-align:center; }
+.task { background:var(--task-bg); padding:10px 15px; margin:10px 0; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.08); display:flex; justify-content: space-between; align-items: center; }
+.task-circle {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--primary-500);
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: white;
+  transition: all 0.3s;
+}
+
+.task.completed .task-circle {
+  background: var(--primary-500);
+  border-color: var(--primary-500);
+}
+
+.task span {
+  flex-grow: 1;
+}
+button { padding:6px 10px; margin-left:5px; border:none; border-radius:6px; cursor:pointer; }
+button.complete { background:#6a4fe6; color:#fff; }
+button.remove { background:#e64a4a; color:#fff; }
+input { padding:8px; width:60%; border-radius:6px; border:1px solid #ccc; }
+</style>
+</head>
+<body>
+  <!-- ===== Navbar ===== -->
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="logo" aria-label="MoodFlow logo">
+      <img src="logo.jpg.jpeg" width="600" height="600"/>
+      <span style="color:  #007BFF; font-size: 20px; font-weight: bold;">MoodFlow</span>
+    </div>
+    <ul class="nav-links" role="menubar" aria-label="Main menu">
+      <li role="none"><a role="menuitem" href="index.html" class="nav-link" data-lang-key="home">الرئيسية</a></li>
+      <li role="none"><a role="menuitem" href="questions.html" class="nav-link" data-lang-key="mood">تحليل المزاج</a></li>
+      <li role="none"><a role="menuitem" href="todo.html" class="nav-link" data-lang-key="todo">قائمة المهام</a></li>
+      <li role="none"><a role="menuitem" href="premium.html" class="nav-link" data-lang-key="premium">Premium</a></li>
+    </ul>
+    <div class="nav-right">
+      <button class="nav-start-btn" onclick="window.location.href='questions.html'" data-lang-key="start_btn">ابدأ الاختبار</button>
+
+      <label for="language-select" class="visually-hidden"></label>
+      <select id="language-select" aria-label="اختر اللغة">
+        <option value="ar">العربية</option>
+        <option value="en">English</option>
+        <option value="fr">Français</option>
+      </select>
+    </div>
+  </div>
+</nav>
+<div class="container">
+  
+  <div id="tasks"></div>
+</div>
+
+<script>
+ // ===== Language =====
+  const languageSelect = document.getElementById("language-select");
+  const translations = {
+    ar: { home:"الرئيسية", mood:"تحليل المزاج", todo:"قائمة المهام", premium:"Premium",
+          hero_title:"نظّم يومك حسب مزاجك", hero_text:"حلّل حالتك النفسية اليوم واحصل على نصائح وتمارين تناسبك.",
+          start_btn:"ابدأ الاختبار", mood_title:"اختار المزاج تاعك:", sad:"حزين", angry:"معصّب", sleepy:"نعسان", normal:"عادي", energy:"طاقة",
+          feature1:"🔍 تحليل المزاج", feature2:"📝 مهام يومية", feature3:"🎧 صوتيات مهدّئة", feature4:"👤 تحليل المزاج من الوجه (قريبًا)"
+    },
+    en: { home:"Home", mood:"Mood Analysis", todo:"To-Do List", premium:"Premium",
+          hero_title:"Organize your day according to your mood", hero_text:"Analyze your mood today and get tips & exercises.",
+          start_btn:"Start Test", mood_title:"Choose your mood:", sad:"Sad", angry:"Angry", sleepy:"Sleepy", normal:"Normal", energy:"Energy",
+          feature1:"Mood Analysis", feature2:"Daily Tasks", feature3:"Relaxing Audios", feature4:"Face Mood Detection (Soon)"
+    },
+    fr: { home:"Accueil", mood:"Analyse de l'humeur", todo:"To-Do List", premium:"Premium",
+          hero_title:"Organisez votre journée selon votre humeur", hero_text:"Analysez votre humeur aujourd'hui et obtenez des conseils & exercices.",
+          start_btn:"Commencer le test", mood_title:"Choisissez votre humeur :", sad:"Triste", angry:"En colère", sleepy:"Fatigué", normal:"Normal", energy:"Énergie",
+          feature1:"Analyse de l'humeur", feature2:"Tâches quotidiennes", feature3:"Audios relaxants", feature4:"Analyse de l'humeur par visage (Bientôt)"
+    }
+  };
+
+  function setLanguage(lang) {
+    document.querySelectorAll("[data-lang-key]").forEach(el => {
+      const key = el.getAttribute("data-lang-key");
+      if(translations[lang] && translations[lang][key]){
+        el.textContent = translations[lang][key];
+      }
+    });
+    localStorage.setItem("selectedLanguage", lang);
+  }
+
+  const savedLang = localStorage.getItem("selectedLanguage") || "ar";
+  languageSelect.value = savedLang;
+  setLanguage(savedLang);
+  languageSelect.addEventListener("change", (e) => setLanguage(e.target.value));
+
+// ===== اللغة والمزاج =====
+const lang = localStorage.getItem('selectedLanguage') || 'ar';
+document.documentElement.lang = lang;
+document.documentElement.dir = (lang==='ar'? 'rtl':'ltr');
+
+const storedMood = localStorage.getItem('userMood') || 'Normal';
+const moodMap = {
+  "عادي":"Normal","طاقة":"Energy","حزين":"Sad","معصّب":"Angry","نعسان":"Sleepy",
+  "Normal":"Normal","Energy":"Energy","Sad":"Sad","Angry":"Angry","Sleepy":"Sleepy"
+};
+const mood = moodMap[storedMood] || 'Normal';
+
+// ===== مهام جاهزة حسب المزاج واللغة =====
+const defaultTasks = {
+  ar: {
+    Sad: [
+      "اقرأ 5 صفحات من كتاب تحفيزي لتعزيز التفاؤل",
+      "دوّن ثلاث أمور تشكر الله عليها اليوم في دفتر خاص",
+      "خطط مهام اليوم بشكل واعٍ مع تحديد أولويات واضحة",
+      "استمع لمقطع صوتي هادئ أو تلاوة قرآنية لتصفية الذهن"
+    ],
+    Angry: [
+      "امشِ أو مارس رياضة خفيفة لمدة 15 دقيقة لتفريغ التوتر بطريقة واعية",
+      "اكتب ما يغضبك ثم حرّره على الورق للتخلص من الطاقة السلبية",
+      "خصص 10 دقائق لتدوين حلول عملية للمواقف التي أغضبتك دون انفعال",
+      "استمع لخطاب تحفيزي أو مقطع صوتي مهدئ لتنظيم المشاعر"
+    ],
+    Sleepy: [
+      "ابدأ اليوم بكوب ماء أو مشروب يحفز النشاط الذهني",
+      "قم بتمارين تنشيطية قصيرة لتنشيط الجسم والوعي الذهني",
+      "اقرأ قرآن أو نص قصير يحفز النشاط الذهني",
+      "استمع لبودكاست تحفيزي أو قراءة قصيرة تمنح الطاقة والتركيز"
+    ],
+    Normal: [], Energy: []
+  },
+  en: {
+    Sad: [
+      "Read 5 pages of a motivational book to boost positivity",
+      "Write three things you are grateful for today in a journal",
+      "Plan today's tasks mindfully with clear priorities",
+      "Listen to a calm audio or Quran recitation to clear your mind"
+    ],
+    Angry: [
+      "Walk or do light exercise for 15 minutes to release tension",
+      "Write down what makes you angry and release it on paper",
+      "Spend 10 minutes writing practical solutions to frustrating situations",
+      "Listen to a motivational speech or calming audio to manage emotions"
+    ],
+    Sleepy: [
+      "Start the day with water or a drink that boosts mental alertness",
+      "Do short activation exercises to energize body and mind",
+      "Read Quran or a short stimulating text",
+      "Listen to a motivational podcast or short reading to boost focus"
+    ],
+    Normal: [], Energy: []
+  },
+  fr: {
+    Sad: [
+      "Lisez 5 pages d’un livre motivant pour renforcer le positivisme",
+      "Notez trois choses pour lesquelles vous êtes reconnaissant aujourd'hui",
+      "Planifiez vos tâches de manière consciente avec des priorités claires",
+      "Écoutez un audio calme ou une récitation du Coran pour clarifier l'esprit"
+    ],
+    Angry: [
+      "Marchez ou faites un exercice léger de 15 minutes pour libérer la tension",
+      "Écrivez ce qui vous met en colère puis libérez-le sur papier",
+      "Consacrez 10 minutes à écrire des solutions pratiques pour les situations frustrantes",
+      "Écoutez un discours motivant ou un audio apaisant pour gérer les émotions"
+    ],
+    Sleepy: [
+      "Commencez la journée avec de l'eau ou une boisson stimulant l'esprit",
+      "Faites de courts exercices pour activer le corps et l'esprit",
+      "Lisez le Coran ou un texte court stimulant",
+      "Écoutez un podcast motivant ou une lecture courte pour booster la concentration"
+    ],
+    Normal: [], Energy: []
+  }
+};
+
+// ===== تحديد autoMode =====
+const params = new URLSearchParams(window.location.search);
+
+
+// ===== تحديد المهام =====
+let tasks = [];
+let autoMode = false; // هل هناك مهام جاهزة
+
+if (mood === "Sad" || mood === "Angry" || mood === "Sleepy") {
+  // هناك مهام جاهزة
+  autoMode = true;
+  if (defaultTasks[lang][mood] && defaultTasks[lang][mood].length > 0) {
+    tasks = defaultTasks[lang][mood].map(t => ({ text: t, completed: false }));
+  }
+} else {
+  // المزاج Normal أو Energy -> لا توجد مهام جاهزة
+  autoMode = false;
+  tasks = [];
+}
+
+
+
+// ===== عرض التودوليست =====
+const container = document.getElementById('tasks');
+
+function renderTasks(){
+  container.innerHTML = '';
+  tasks.forEach((t,i)=>{
+    const div = document.createElement('div');
+    div.className = 'task';
+    if(t.completed) div.classList.add('completed');
+
+   div.innerHTML = `
+  <div class="task-circle">${t.completed ? '✔' : ''}</div>
+  <span>
+  ${t.text}
+  ${t.duration ? `<small style="color:gray;"> (${t.duration} د)</small>` : ''}
+</span>
+
+   `;
+
+
+    // عند النقر على المهمة، يتم وضع علامة "تم"
+    div.addEventListener('click', () => {
+      tasks[i].completed = !tasks[i].completed;
+      renderTasks();
+    });
+
+    container.appendChild(div);
+  });
+
+  if(!autoMode){
+    const inputDiv = document.createElement('div');
+    inputDiv.style.marginTop='15px';
+  inputDiv.innerHTML = `
+  <input id="newTask" placeholder="${lang==='ar'?'أضف مهمة جديدة' : lang==='fr'?'Ajouter une tâche':'Add a new task'}" />
+  <input id="taskDuration" type="number" placeholder="${lang==='ar'?'المدة بالدقائق':'Duration (min)'}" min="1" style="width:80px;" />
+  <button onclick="addTask()">${lang==='ar'?'أضف' : lang==='fr'?'Ajouter':'Add'}</button>
+`;
+
+    container.appendChild(inputDiv);
+  }
+}
+
+function addTask(){
+  const val = document.getElementById('newTask').value.trim();
+  const durationInput = document.getElementById('taskDuration');
+  const duration = parseInt(durationInput.value);
+
+  if(val){
+    tasks.push({
+      text: val,
+      completed: false,
+      duration: duration || 5 // مدة افتراضية فقط للمهام التي يدخلها المستخدم
+    });
+
+    // ترتيب: غير مكتملة أولًا ثم الأقصر مدة
+    tasks.sort((a,b) => {
+      if(a.completed !== b.completed) return a.completed - b.completed;
+      return (a.duration || 9999) - (b.duration || 9999);
+    });
+  }
+
+  document.getElementById('newTask').value = '';
+  durationInput.value = '';
+  renderTasks();
+}
+
+
+
+
+function completeTask(i){
+  alert(lang==='ar'?'تهانينا! أكملت المهمة.':lang==='fr'?'Félicitations! Tâche terminée.':'Congratulations! Task completed.');
+  tasks.splice(i,1);
+  renderTasks();
+}
+
+function removeTask(i){
+  tasks.splice(i,1);
+  renderTasks();
+}
+
+
+
+renderTasks();
+</script>
+</body>
+</html>

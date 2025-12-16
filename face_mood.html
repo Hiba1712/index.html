@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>تحليل المزاج من الوجه</title>
+<style>
+body{
+  margin:0;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family:Tahoma;
+  background:#f7f7fb;
+}
+.box{
+  background:#fff;
+  padding:30px;
+  border-radius:14px;
+  width:90%;
+  max-width:420px;
+  text-align:center;
+  box-shadow:0 20px 40px rgba(0,0,0,.1);
+}
+.icon{
+  font-size:50px;
+  margin-bottom:10px;
+}
+p{
+  color:#555;
+}
+button{
+  margin-top:20px;
+  padding:12px 20px;
+  border:none;
+  border-radius:10px;
+  background:#6a4fe6;
+  color:#fff;
+  font-size:15px;
+  cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+  <div class="icon">📷</div>
+  <h2 data-lang-key="face_title">تحليل المزاج من الوجه</h2>
+  <p data-lang-key="face_text">
+    هذه الميزة غير متاحة حاليًا، سيتم إضافتها لاحقًا.
+  </p>
+
+  <button onclick="goBack()" data-lang-key="back">
+    رجوع
+  </button>
+</div>
+
+<script>
+/* ===== الترجمات ===== */
+const translations = {
+  ar:{
+    face_title:"تحليل المزاج من الوجه",
+    face_text:"هذه الميزة غير متاحة حاليًا، سيتم إضافتها لاحقًا.",
+    back:"رجوع"
+  },
+  en:{
+    face_title:"Face Mood Analysis",
+    face_text:"This feature is not available yet. It will be added later.",
+    back:"Back"
+  },
+  fr:{
+    face_title:"Analyse de l'humeur par le visage",
+    face_text:"Cette fonctionnalité n'est pas encore disponible.",
+    back:"Retour"
+  }
+};
+
+/* ===== ربط اللغة مع الموقع ===== */
+function setLanguage(lang){
+  document.documentElement.lang = lang;
+  document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
+
+  document.querySelectorAll("[data-lang-key]").forEach(el=>{
+    const key = el.getAttribute("data-lang-key");
+    if(translations[lang][key]){
+      el.textContent = translations[lang][key];
+    }
+  });
+}
+
+const currentLang = localStorage.getItem("selectedLanguage") || "ar";
+setLanguage(currentLang);
+
+/* ===== زر الرجوع ===== */
+function goBack(){
+  window.location.href = "index.html";
+}
+</script>
+
+</body>
+</html>

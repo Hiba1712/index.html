@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>MoodFlow | الصفحة الرئيسية</title>
+<style>
+/* ===== Variables ===== */
+:root {
+  --primary-500: #6a4fe6;
+  --primary-600: #5a3fe0;
+  --muted: #6b6f76;
+  --card-bg: #ffffff;
+  --surface: #f7f7fb;
+  --radius: 12px;
+  --transition: 240ms cubic-bezier(.2,.9,.3,1);
+}
+* { box-sizing:border-box; }
+html, body { height:100%; margin:0; font-family:Tahoma, "Segoe UI", Roboto, sans-serif; background: var(--surface); color:#222; text-align:center; }
+.visually-hidden { position:absolute !important; height:1px; width:1px; overflow:hidden; }
+
+/* ===== Navbar ===== */
+.nav { width: 100%; background: linear-gradient(90deg, rgba(173,216,230,0.7), rgba(135,206,250,0.7)); position: sticky; top: 0; z-index: 50; }
+.nav-inner { max-width:1100px; margin:0 auto; padding:12px 20px; display:flex; align-items:center; justify-content:space-between; gap:20px; direction:ltr; }
+.logo { font-weight:900; font-size:40px; display:flex; align-items:center; gap:8px; }
+.logo img {width:40px; height:40px; border-radius:50%; object-fit:cover; }
+.nav-links { display:flex; gap:20px; list-style:none; margin:0; padding:0; }
+.nav-link { color:#fff; text-decoration:none; font-weight:600; padding:8px 12px; border-radius:8px; }
+.nav-right { display:flex; align-items:center; gap:12px; }
+.nav-start-btn { background:#00bfff; color:#fff; font-weight:700; padding:10px 16px; border:none; border-radius:8px; cursor:pointer; }
+.login-btn { background:#fff; color:var(--primary-600); border:none; padding:8px 14px; border-radius:10px; font-weight:700; cursor:pointer; }
+#toggleTheme { background:transparent; border:none; font-size:20px; cursor:pointer; color:#fff; }
+
+/* ===== Hero ===== */
+.hero { max-width:1100px; margin:36px auto; display:flex; gap:28px; align-items:center; padding:0 20px; flex-wrap:wrap; justify-content:center; }
+.hero-card { background:#fff; border-radius:12px; padding:28px; text-align:right; }
+.hero-visual { width:220px; }
+.mood-preview { font-size:36px; animation: float 3s ease-in-out infinite; }
+@keyframes float{ 0%,100%{ transform: translateY(0); } 50%{ transform: translateY(-8px); } }
+
+/* ===== Mood ===== */
+.moods { margin:22px 0; }
+.mood-icons { display:flex; gap:18px; justify-content:center; flex-wrap:wrap; }
+.mood-item { background:#fff; border-radius:12px; padding:16px 20px; width:120px; text-decoration:none; color:inherit; }
+.emoji { font-size:36px; }
+
+/* ===== Features ===== */
+.features { max-width:1100px; margin:40px auto; display:grid; gap:18px; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); padding:0 20px; }
+.features .card, .features a { background:#fff; padding:20px; border-radius:12px; text-decoration:none; color:inherit; font-weight:700; }
+@media (max-width:720px) {
+.nav-links { display:none; }
+.hero { flex-direction:column-reverse; }
+} 
+/* ===== Global Hover Effect for Cards ===== */
+.card-hover {
+  transition: transform .25s ease, box-shadow .25s ease, background .25s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-6px) scale(1.04);
+  box-shadow: 0 14px 30px rgba(106,79,230,.22);
+  background: linear-gradient(135deg,#e0d9ff,#f2efff);
+}
+
+
+</style>
+
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="logo">
+      <img src="logo.jpg.jpeg" >
+      <span style="color:#007BFF; font-size:20px; font-weight:bold;">MoodFlow</span>
+    </div>
+    <ul class="nav-links">
+      <li><a href="index.html" class="nav-link" data-lang-key="home">الرئيسية</a></li>
+      <li><a href="questions.html" class="nav-link" data-lang-key="mood">تحليل المزاج</a></li>
+      <li><a href="todo.html" class="nav-link" data-lang-key="todo">قائمة المهام</a></li>
+      <li><a href="premium.html" class="nav-link" data-lang-key="premium">Premium</a></li>
+    </ul>
+    <div class="nav-right">
+      <button class="nav-start-btn" onclick="location.href='questions.html'" data-lang-key="start_btn">ابدأ الاختبار</button>
+      <select id="language-select">
+        <option value="ar">العربية</option>
+        <option value="en">English</option>
+        <option value="fr">Français</option>
+      </select>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <section class="hero">
+    <div class="hero-card  card-hover">
+      <h1 data-lang-key="hero_title">نظّم يومك حسب مزاجك</h1>
+      <p data-lang-key="hero_text">حلّل حالتك النفسية اليوم واحصل على نصائح وتمارين تناسبك.</p>
+    </div>
+    <div class="hero-visual"><div class="mood-preview">🙂🔥😔</div></div>
+  </section>
+
+  <section class="moods">
+    <h3 data-lang-key="mood_title">اختار المزاج تاعك:</h3>
+    <div class="mood-icons">
+
+     <a class="mood-item card-hover " href="#" onclick="selectMoodAndGo('Sad')">
+  <span class="emoji">😔</span>
+  <p data-lang-key="sad">حزين</p>
+     </a>
+
+<a class="mood-item  card-hover" href="#" onclick="selectMoodAndGo('Angry')">
+  <span class="emoji">😤</span>
+  <p data-lang-key="angry">معصّب</p>
+</a>
+
+<a class="mood-item card-hover " href="#" onclick="selectMoodAndGo('Sleepy')">
+  <span class="emoji">😴</span>
+  <p data-lang-key="sleepy">نعسان</p>
+</a>
+
+<a class="mood-item card-hover " href="#" onclick="selectMoodAndGoTodo('Normal')">
+  <span class="emoji">🙂</span>
+  <p data-lang-key="normal">عادي</p>
+</a>
+
+<a class="mood-item card-hover " href="#" onclick="selectMoodAndGoTodo('Energy')">
+  <span class="emoji">🔥</span>
+  <p data-lang-key="energy">طاقة</p>
+</a>
+
+    </div>
+  </section>
+
+  <section class="features">
+    <a href="questions.html" class="card card-hover " data-lang-key="feature1">🔍 تحليل المزاج</a>
+    <a href="todo.html" class="card card-hover " data-lang-key="feature2">📝 مهام يومية</a>
+    <a href="audio.html" class="card card-hover " data-lang-key="feature3">🎧 صوتيات مهدّئة</a>
+    <a href="face_mood.html"  class="card card-hover" data-lang-key="feature4">👤تحليل المزاج من الوجه </a>
+  </section>
+</main>
+
+<script>
+const languageSelect = document.getElementById("language-select");
+
+const translations = {
+  ar:{home:"الرئيسية",mood:"تحليل المزاج",todo:"قائمة المهام",premium:"Premium",hero_title:"نظّم يومك حسب مزاجك",hero_text:"حلّل حالتك النفسية اليوم واحصل على نصائح وتمارين تناسبك.",start_btn:"ابدأ الاختبار",mood_title:"اختار المزاج تاعك:",sad:"حزين",angry:"معصّب",sleepy:"نعسان",normal:"عادي",energy:"طاقة",feature1:"🔍 تحليل المزاج",feature2:"📝 مهام يومية",feature3:"🎧 صوتيات مهدّئة",feature4:"👤 تحليل المزاج من الوجه "},
+  en:{home:"Home",mood:"Mood Analysis",todo:"To-Do List",premium:"Premium",hero_title:"Organize your day according to your mood",hero_text:"Analyze your mood today and get tips & exercises.",start_btn:"Start Test",mood_title:"Choose your mood:",sad:"Sad",angry:"Angry",sleepy:"Sleepy",normal:"Normal",energy:"Energy",feature1:"Mood Analysis",feature2:"Daily Tasks",feature3:"Relaxing Audios",feature4:"Face Mood Detection (Soon)",login_btn:"Login"},
+  fr:{home:"Accueil",mood:"Analyse de l'humeur",todo:"To-Do List",premium:"Premium",hero_title:"Organisez votre journée selon votre humeur",hero_text:"Analysez votre humeur aujourd'hui et obtenez des conseils & exercices.",start_btn:"Commencer le test",mood_title:"Choisissez votre humeur :",sad:"Triste",angry:"En colère",sleepy:"Fatigué",normal:"Normal",energy:"Énergie",feature1:"Analyse de l'humeur",feature2:"Tâches quotidiennes",feature3:"Audios relaxants",feature4:"Analyse de l'humeur par visage (Bientôt)",login_btn:"Connexion"}
+};
+
+function setLanguage(lang){
+  document.querySelectorAll("[data-lang-key]").forEach(el=>{
+    const key = el.getAttribute("data-lang-key");
+    if(translations[lang][key]) el.textContent = translations[lang][key];
+  });
+}
+
+const savedLang = localStorage.getItem("selectedLanguage") || "ar";
+languageSelect.value = savedLang;
+setLanguage(savedLang);
+
+languageSelect.addEventListener("change", e=>{
+  localStorage.setItem("selectedLanguage", e.target.value);
+  setLanguage(e.target.value);
+});
+function selectMoodAndGo(mood){
+  localStorage.setItem("userMood", mood);
+  window.location.href = "mood_results.html";
+}
+
+function selectMoodAndGoTodo(mood){
+  localStorage.setItem("userMood", mood);
+  window.location.href = "todo.html";
+}
+</script>
+</body>
+</html>

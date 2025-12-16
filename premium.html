@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MoodFlow – بوابة العلاج عن بعد</title>
+<style>
+  /* ====== Variables & reset ====== */
+  :root{
+    --bg:#f7f7fb;
+    --card:#fff;
+    --muted:#6b6f76;
+    --accent:#6a4fe6;
+    --accent-2:#00bfff;
+    --glass: rgba(255,255,255,0.7);
+    --radius:14px;
+    --shadow: 0 10px 30px rgba(20,20,50,0.06);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;font-family: "Segoe UI", Tahoma, Roboto, "Noto Naskh Arabic", sans-serif;background:var(--bg);color:#111}
+  .container{max-width:1100px;margin:28px auto;padding:18px}
+  .row{display:flex;gap:18px;align-items:center}
+  .center{display:flex;align-items:center;justify-content:center}
+  a{color:inherit;text-decoration:none}
+
+  /* ===== Header ===== */
+  header{display:flex;justify-content:space-between;align-items:center;padding:12px 0}
+  .brand{display:flex;align-items:center;gap:12px}
+  .logo-circle{width:46px;height:46px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#8f6bff);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:18px;box-shadow:var(--shadow)}
+  .brand h1{margin:0;font-size:18px}
+  .lang-select{padding:8px;border-radius:10px;border:1px solid rgba(0,0,0,0.06);background:var(--card);cursor:pointer}
+
+  /* ===== Role chooser card ===== */
+  .hero{background:linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.8));border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);display:flex;gap:18px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+  .hero-left{max-width:640px;text-align:right}
+  .hero-left h2{margin:0 0 8px 0;font-size:24px;color:var(--accent)}
+  .hero-left p{margin:0;color:var(--muted)}
+  .roles{display:flex;gap:12px;margin-top:14px;flex-wrap:wrap}
+  .role-card{background:var(--card);padding:14px 18px;border-radius:12px;box-shadow:0 6px 20px rgba(0,0,0,0.05);cursor:pointer;min-width:220px;transition:transform .18s,box-shadow .18s}
+  .role-card:hover{transform:translateY(-6px);box-shadow:0 18px 40px rgba(0,0,0,0.08)}
+  .role-card h3{margin:0 0 8px 0}
+  .role-card p{margin:0;color:var(--muted);font-size:14px}
+
+  /* ===== Auth area ===== */
+  .auth-area{display:flex;gap:12px;align-items:center}
+  .btn{background:var(--accent);color:#fff;padding:10px 14px;border-radius:10px;border:none;cursor:pointer;font-weight:700}
+  .btn.secondary{background:#fff;color:var(--accent);border:1px solid rgba(0,0,0,0.06)}
+  .linkish{background:transparent;border:none;color:var(--accent);cursor:pointer;text-decoration:underline;padding:6px 10px}
+
+  /* ===== Dashboard ===== */
+  .dashboard{margin-top:22px;display:grid;grid-template-columns:1fr 380px;gap:18px}
+  .card{background:var(--card);border-radius:12px;padding:16px;box-shadow:var(--shadow)}
+  .card h4{margin:0 0 10px 0}
+  .list{display:flex;flex-direction:column;gap:10px}
+  .list-item{display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:10px;background:linear-gradient(180deg,#fff,#fbfbff);border:1px solid rgba(0,0,0,0.03)}
+  .pill{background:var(--accent);color:#fff;padding:6px 10px;border-radius:8px;font-size:13px}
+
+  /* ===== Video area ===== */
+  .video-area{display:flex;flex-direction:column;gap:10px}
+  video{width:100%;border-radius:10px;background:#000;height:320px;object-fit:cover}
+  .controls{display:flex;gap:8px;align-items:center}
+  .small{padding:8px 10px;border-radius:8px;border:none;cursor:pointer}
+
+  /* ===== Forms ===== */
+  .modal{position:fixed;inset:0;background:rgba(10,10,20,0.45);display:none;align-items:center;justify-content:center;z-index:60}
+  .modal.show{display:flex}
+  .modal .box{width:420px;background:var(--card);padding:18px;border-radius:12px;box-shadow:var(--shadow);text-align:right}
+  label{display:block;margin-bottom:6px;font-size:13px}
+  input[type=text], input[type=password], input[type=email], select, textarea{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(0,0,0,0.08);margin-bottom:12px}
+  .form-row{display:flex;gap:8px}
+  .hint{font-size:13px;color:var(--muted);margin-top:6px}
+
+  /* ===== Responsive ===== */
+  @media (max-width:900px){
+    .dashboard{grid-template-columns:1fr; }
+    .video-area video{height:220px}
+  }
+
+  /* ===== Nice small touches ===== */
+  .muted{color:var(--muted);font-size:14px}
+  .ok{color:#28a745}
+  .danger{color:#e64a4a}
+  footer{margin-top:28px;text-align:center;color:var(--muted);font-size:13px}
+</style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="brand">
+        <div class="logo-circle">MF</div>
+        <div>
+          <h1>MoodFlow Portal</h1>
+          <div class="muted" id="subTitle">منصة للتواصل بين المعالج والمريض (واجهة تجريبية)</div>
+        </div>
+      </div>
+
+      <div class="auth-area">
+        <select id="lang" class="lang-select" title="اختر اللغة">
+          <option value="ar">العربية</option>
+          <option value="en">English</option>
+          <option value="fr">Français</option>
+        </select>
+        <button id="openLogin" class="btn secondary">دخول</button>
+        <button id="openRegister" class="btn">تسجيل</button>
+      </div>
+    </header>
+
+    <!-- ===== Hero / Role chooser ===== -->
+    <section class="hero" aria-labelledby="heroTitle">
+      <div class="hero-left">
+        <h2 id="heroTitle">مرحبا بك في بوابة المعالجة عن بعد</h2>
+        <p id="heroText">اختاري دورك للدخول: <strong>معالج نفسي</strong> أو <strong>مريض</strong>. الواجهة تشتغل فرونت-إند — التخزين محلي (mock) للتجربة.</p>
+
+        <div class="roles" id="roles">
+          <div class="role-card" data-role="patient" tabindex="0">
+            <h3 id="rolePatient">أنا مريض</h3>
+            <p id="rolePatientDesc">تلقي جلسات، مشاهدة الفيديوهات، وإدارة المهام مع مراقبة المعالج (شكلي).</p>
+          </div>
+
+          <div class="role-card" data-role="therapist" tabindex="0">
+            <h3 id="roleTherapist">أنا معالج نفسي</h3>
+            <p id="roleTherapistDesc">إدارة مرضاك، عرض الجلسات، وتحديد الملاحظات — واجهة شكلية احترافية.</p>
+          </div>
+        </div>
+      </div>
+
+      <div style="min-width:260px">
+        <div class="card center" style="flex-direction:column;gap:12px">
+          <div style="font-weight:800;color:var(--accent)">جلسات مباشرة</div>
+          <div class="muted">معاينة فيديو محلي (اختبار)</div>
+          <video id="localVideo" autoplay muted playsinline></video>
+          <div class="controls">
+            <button id="startCam" class="small">تشغيل الكاميرا</button>
+            <button id="stopCam" class="small">إيقاف</button>
+            <button id="joinBtn" class="small btn">انضم لجلسة</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Dashboard (يتغير حسب الدور) ===== -->
+    <div id="dashWrap" style="display:none" class="dashboard">
+      <div>
+        <div class="card" id="mainCard">
+          <h4 id="dashTitle">لوحة التحكم</h4>
+          <p id="dashSubtitle" class="muted">ملخص سريع</p>
+
+          <!-- dynamic content -->
+          <div id="mainContent" style="margin-top:12px"></div>
+        </div>
+
+        <div class="card" style="margin-top:12px">
+          <h4 id="sessionsTitle">جلسات قريبة</h4>
+          <div id="sessionsList" class="list" style="margin-top:10px"></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card">
+          <h4 id="rightTitle">الأدوات</h4>
+          <div style="margin-top:8px" class="list">
+            <div class="list-item">
+              <div>
+                <strong id="toolTodo">تنظيم المهام</strong>
+                <div class="muted" id="toolTodoDesc">يمكن فتح صفحة التودوليست من هنا</div>
+              </div>
+              <div>
+                <button id="openTodo" class="small btn">فتح</button>
+              </div>
+            </div>
+
+            <div class="list-item">
+              <div>
+                <strong id="toolPatients">قائمة المرضى</strong>
+                <div class="muted" id="toolPatientsDesc">عرض سريع</div>
+              </div>
+              <div>
+                <button id="openPatients" class="small secondary">عرض</button>
+              </div>
+            </div>
+
+            <div class="list-item">
+              <div>
+                <strong id="toolNotes">ملاحظات الجلسة</strong>
+                <div class="muted" id="toolNotesDesc">تدوين ملاحظات سريعة</div>
+              </div>
+              <div>
+                <button id="openNotes" class="small btn">فتح</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:12px">
+          <h4 id="helpTitle">مساعدة</h4>
+          <div class="muted" style="margin-top:6px">هذه واجهة تجريبية — التواصل الفعلي يحتاج back-end و WebRTC/سيرفر إشارات.</div>
+        </div>
+      </div>
+    </div>
+
+    <footer>© MoodFlow — واجهة عرض فقط (Front-end). التصميم متناسق واحترافي.</footer>
+  </div>
+
+  <!-- ===== Modals: Login / Register / Patients / Notes (simple) ===== -->
+  <div id="modal" class="modal" role="dialog" aria-hidden="true">
+    <div class="box" id="modalBox"></div>
+  </div>
+
+<script>
+/* =========================
+   Translations (ar/en/fr)
+   ========================= */
+const i18n = {
+  ar: {
+    heroTitle: "مرحبا بك في بوابة المعالجة عن بعد",
+    heroText: "اختاري دورك للدخول: معالج نفسي أو مريض. الواجهة تجربة شكلية — التخزين محلي.",
+    rolePatient: "أنا مريض",
+    rolePatientDesc: "تلقي جلسات، مشاهدة الموارد، وإدارة المهام.",
+    roleTherapist: "أنا معالج نفسي",
+    roleTherapistDesc: "إدارة المرضى، جلسات، وملاحظات.",
+    login: "دخول",
+    register: "تسجيل",
+    startCam: "تشغيل الكاميرا",
+    stopCam: "إيقاف",
+    joinBtn: "انضم لجلسة",
+    openTodo: "فتح",
+    dashTitle_patient: "لوحة المريض",
+    dashTitle_therapist: "لوحة المعالج",
+    dashIntro_patient: "هذا المكان يتيح لك متابعة جلساتك والمهام المُنظَّمة.",
+    dashIntro_therapist: "هنا يمكنك رؤية مرضاك وجدولة الجلسات وملاحظاتها.",
+    sessionsTitle: "جلسات قريبة",
+    patientsTitle: "قائمة المرضى",
+    notesTitle: "ملاحظات",
+    modalLoginTitle: "تسجيل الدخول",
+    modalRegisterTitle: "إنشاء حساب",
+    placeholderName: "الاسم الكامل",
+    placeholderEmail: "البريد الالكتروني",
+    placeholderPass: "كلمة المرور",
+    submit: "إرسال",
+    cancel: "إلغاء",
+  },
+  en: {
+    heroTitle: "Welcome to the Telehealth Portal",
+    heroText: "Choose your role: Therapist or Patient. Front-end demo only — data stored locally.",
+    rolePatient: "I'm a Patient",
+    rolePatientDesc: "Receive sessions, view resources and manage tasks.",
+    roleTherapist: "I'm a Therapist",
+    roleTherapistDesc: "Manage patients, sessions and notes.",
+    login: "Login",
+    register: "Register",
+    startCam: "Start Camera",
+    stopCam: "Stop",
+    joinBtn: "Join Session",
+    openTodo: "Open",
+    dashTitle_patient: "Patient Dashboard",
+    dashTitle_therapist: "Therapist Dashboard",
+    dashIntro_patient: "See your upcoming sessions and tasks here.",
+    dashIntro_therapist: "Manage patients, schedule sessions and notes here.",
+    sessionsTitle: "Upcoming Sessions",
+    patientsTitle: "Patients",
+    notesTitle: "Notes",
+    modalLoginTitle: "Login",
+    modalRegisterTitle: "Create Account",
+    placeholderName: "Full name",
+    placeholderEmail: "Email address",
+    placeholderPass: "Password",
+    submit: "Submit",
+    cancel: "Cancel",
+  },
+  fr: {
+    heroTitle: "Bienvenue sur le portail de télésanté",
+    heroText: "Choisissez votre rôle : Thérapeute ou Patient. Démo front-end — données locales.",
+    rolePatient: "Je suis Patient",
+    rolePatientDesc: "Recevoir des sessions, voir des ressources et gérer les tâches.",
+    roleTherapist: "Je suis Thérapeute",
+    roleTherapistDesc: "Gérer les patients, sessions et notes.",
+    login: "Connexion",
+    register: "Inscription",
+    startCam: "Démarrer la caméra",
+    stopCam: "Arrêter",
+    joinBtn: "Rejoindre la session",
+    openTodo: "Ouvrir",
+    dashTitle_patient: "Tableau Patient",
+    dashTitle_therapist: "Tableau Thérapeute",
+    dashIntro_patient: "Voir vos sessions à venir et tâches ici.",
+    dashIntro_therapist: "Gérer patients, planifier sessions et notes ici.",
+    sessionsTitle: "Sessions à venir",
+    patientsTitle: "Patients",
+    notesTitle: "Notes",
+    modalLoginTitle: "Connexion",
+    modalRegisterTitle: "Créer un compte",
+    placeholderName: "Nom complet",
+    placeholderEmail: "Email",
+    placeholderPass: "Mot de passe",
+    submit: "Envoyer",
+    cancel: "Annuler",
+  }
+};
+
+/* ============== App state (local demo) ============== */
+let state = {
+  role: null, // 'patient' | 'therapist'
+  user: null, // {id,name,email,role}
+  patients: [], // list of sample patients (for therapist)
+  sessions: []  // upcoming sessions
+};
+
+/* Load saved language & apply translations */
+const langSelect = document.getElementById('lang');
+let LANG = localStorage.getItem('tf_lang') || 'ar';
+langSelect.value = LANG;
+applyTranslations();
+
+langSelect.addEventListener('change', e => {
+  LANG = e.target.value;
+  localStorage.setItem('tf_lang', LANG);
+  applyTranslations();
+});
+
+/* map UI strings */
+function applyTranslations(){
+  const t = i18n[LANG];
+  document.getElementById('heroTitle').textContent = t.heroTitle;
+  document.getElementById('heroText').textContent = t.heroText;
+  document.getElementById('rolePatient').textContent = t.rolePatient;
+  document.getElementById('rolePatientDesc').textContent = t.rolePatientDesc;
+  document.getElementById('roleTherapist').textContent = t.roleTherapist;
+  document.getElementById('roleTherapistDesc').textContent = t.roleTherapistDesc;
+  document.getElementById('openLogin').textContent = t.login;
+  document.getElementById('openRegister').textContent = t.register;
+  document.getElementById('startCam').textContent = t.startCam;
+  document.getElementById('stopCam').textContent = t.stopCam;
+  document.getElementById('joinBtn').textContent = t.joinBtn;
+  // right panel
+  document.getElementById('toolTodo').textContent = (LANG==='ar'?'تنظيم المهام': LANG==='fr'?'Organiser tâches':'Task Organizer');
+  document.getElementById('toolPatients').textContent = (LANG==='ar'?'قائمة المرضى': LANG==='fr'?'Liste des patients':'Patients');
+  document.getElementById('toolNotes').textContent = (LANG==='ar'?'ملاحظات الجلسة': LANG==='fr'?'Notes de session':'Session Notes');
+  document.getElementById('helpTitle').textContent = (LANG==='ar'?'مساعدة': LANG==='fr'?'Aide':'Help');
+  // subtitle
+  document.getElementById('subTitle').textContent = (LANG==='ar'?'منصة للتواصل بين المعالج والمريض (واجهة تجريبية)':'Telehealth demo — front-end only');
+}
+
+/* ===== role click handlers ===== */
+document.querySelectorAll('.role-card').forEach(card=>{
+  card.addEventListener('click', ()=> chooseRole(card.dataset.role));
+  card.addEventListener('keyup', (e)=> { if(e.key==='Enter') chooseRole(card.dataset.role) });
+});
+
+function chooseRole(role){
+  state.role = role;
+  // show dashboard area
+  document.getElementById('dashWrap').style.display = 'grid';
+  // hide the hero briefly (for clarity) — keep it visible in UI but we can move down
+  window.scrollTo({top: 400, behavior:'smooth'});
+  renderDashboard();
+}
+
+/* ===== sample data for demo (therapist patients & sessions) ===== */
+function seedDemo(){
+  state.patients = [
+    {id:1,name:'أمينة ب.', mood:'Sad'},
+    {id:2,name:'سامي ر.', mood:'Energy'},
+    {id:3,name:'Karim B.', mood:'Sleepy'}
+  ];
+  const now = new Date();
+  state.sessions = [
+    {id:101, patient:'أمينة ب.', time: new Date(now.getTime()+3600*1000), status:'scheduled'},
+    {id:102, patient:'سامي ر.', time: new Date(now.getTime()+7200*1000), status:'scheduled'}
+  ];
+}
+
+/* ===== Dashboard rendering ===== */
+function renderDashboard(){
+  seedDemo(); // for demo purposes
+  const mainContent = document.getElementById('mainContent');
+  mainContent.innerHTML = '';
+  const dashTitle = document.getElementById('dashTitle');
+  const dashSubtitle = document.getElementById('dashSubtitle');
+  const t = i18n[LANG];
+
+  if(state.role === 'patient'){
+    dashTitle.textContent = t.dashTitle_patient;
+    dashSubtitle.textContent = t.dashIntro_patient;
+    // patient view: show upcoming sessions + quick tasks button
+    const html = `
+      <div>
+        <div style="margin-bottom:12px"><strong>${state.user ? state.user.name : 'Patient (Demo)'}</strong></div>
+        <div class="muted">${t.dashIntro_patient}</div>
+        <div style="margin-top:12px">
+          <button id="goToTodoPatient" class="btn" style="width:100%;margin-top:10px">${LANG==='ar'?'فتح المهام':'Open Tasks'}</button>
+        </div>
+      </div>
+    `;
+    mainContent.innerHTML = html;
+
+    // sessions list
+    const sessionsList = document.getElementById('sessionsList');
+    sessionsList.innerHTML = '';
+    state.sessions.forEach(s=>{
+      const div = document.createElement('div');
+      div.className = 'list-item';
+      div.innerHTML = `<div>${s.patient} — <span class="muted">${formatDate(s.time)}</span></div><div><button class="small btn" onclick="alert('Join demo session')">${LANG==='ar'?'انضم':'Join'}</button></div>`;
+      sessionsList.appendChild(div);
+    });
+
+    document.getElementById('goToTodoPatient').addEventListener('click', ()=> {
+      // open todolist page — we simulate by opening todolist.html (user must have it)
+      window.location.href = 'todolist.html?auto=false';
+    });
+
+  } else if(state.role === 'therapist'){
+    dashTitle.textContent = t.dashTitle_therapist;
+    dashSubtitle.textContent = t.dashIntro_therapist;
+
+    // therapist view: show patients & quick actions
+    const patientsHtml = document.createElement('div');
+    patientsHtml.innerHTML = '<div class="muted" style="margin-bottom:8px">'+ (LANG==='ar'?'المرضى الحاليون':'Current patients') +'</div>';
+    const ul = document.createElement('div');
+    ul.className = 'list';
+    state.patients.forEach(p=>{
+      const item = document.createElement('div');
+      item.className='list-item';
+      item.innerHTML = `<div><strong>${p.name}</strong><div class="muted">${LANG==='ar'?'المزاج':'Mood'}: ${p.mood}</div></div>
+                        <div><button class="small btn" onclick="openPatient(${p.id})">${LANG==='ar'?'فتح':'Open'}</button></div>`;
+      ul.appendChild(item);
+    });
+    patientsHtml.appendChild(ul);
+    mainContent.appendChild(patientsHtml);
+
+    // sessions
+    const sessionsList = document.getElementById('sessionsList');
+    sessionsList.innerHTML = '';
+    state.sessions.forEach(s=>{
+      const div = document.createElement('div');
+      div.className = 'list-item';
+      div.innerHTML = `<div>${s.patient} — <span class="muted">${formatDate(s.time)}</span></div><div><button class="small btn" onclick="alert('Open session (demo)')">${LANG==='ar'?'عرض':'Open'}</button></div>`;
+      sessionsList.appendChild(div);
+    });
+  }
+}
+
+/* ===== patients popup (therapist) ===== */
+function openPatient(id){
+  const p = state.patients.find(x=>x.id===id);
+  showModal(`
+    <h3 style="margin-top:0">${LANG==='ar'?(p.name+' — ملف المريض'):(p.name+' — Patient')}</h3>
+    <p class="muted">${LANG==='ar'?'مزاج حالياً: ':'Mood: '}${p.mood}</p>
+    <label>${i18n[LANG].notesTitle}</label>
+    <textarea id="noteText" rows="6" placeholder="${LANG==='ar'?'أكتب ملاحظة عن الجلسة...':'Write a note...'}"></textarea>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn" onclick="saveNote(${id})">${i18n[LANG].submit}</button>
+      <button class="small secondary" onclick="closeModal()">${i18n[LANG].cancel}</button>
+    </div>
+  `);
+}
+function saveNote(id){
+  // demo: just close and show message
+  closeModal();
+  alert(LANG==='ar'?'تم حفظ الملاحظة (تجريبي)':'Note saved (demo)');
+}
+
+/* ===== Modal helpers ===== */
+const modal = document.getElementById('modal');
+const modalBox = document.getElementById('modalBox');
+function showModal(html){
+  modalBox.innerHTML = html;
+  modal.classList.add('show');
+  modal.setAttribute('aria-hidden','false');
+}
+function closeModal(){
+  modal.classList.remove('show');
+  modal.setAttribute('aria-hidden','true');
+}
+
+/* ===== Login / Register (front-end demo) ===== */
+document.getElementById('openLogin').addEventListener('click', ()=> {
+  const t = i18n[LANG];
+  showModal(`
+    <h3 style="margin-top:0">${t.modalLoginTitle}</h3>
+    <label>${t.placeholderEmail}</label><input id="m_email" type="email" placeholder="${t.placeholderEmail}" />
+    <label>${t.placeholderPass}</label><input id="m_pass" type="password" placeholder="${t.placeholderPass}" />
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn" onclick="doLogin()">${t.login}</button>
+      <button class="small secondary" onclick="closeModal()">${t.cancel}</button>
+    </div>
+  `);
+});
+
+document.getElementById('openRegister').addEventListener('click', ()=> {
+  const t = i18n[LANG];
+  showModal(`
+    <h3 style="margin-top:0">${t.modalRegisterTitle}</h3>
+    <label>${t.placeholderName}</label><input id="r_name" type="text" placeholder="${t.placeholderName}" />
+    <label>${t.placeholderEmail}</label><input id="r_email" type="email" placeholder="${t.placeholderEmail}" />
+    <label>${t.placeholderPass}</label><input id="r_pass" type="password" placeholder="${t.placeholderPass}" />
+    <label>دورك</label>
+    <select id="r_role"><option value="patient">${t.rolePatient}</option><option value="therapist">${t.roleTherapist}</option></select>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn" onclick="doRegister()">${t.submit}</button>
+      <button class="small secondary" onclick="closeModal()">${t.cancel}</button>
+    </div>
+  `);
+});
+
+function doLogin(){
+  const email = document.getElementById('m_email').value.trim();
+  const pass = document.getElementById('m_pass').value.trim();
+  // demo: accept any input
+  if(!email || !pass){ alert(LANG==='ar'?'عمر الحقول':'Fill fields'); return; }
+  closeModal();
+  // set demo user
+  state.user = {id: Date.now(), name: email.split('@')[0], email, role: 'patient'};
+  state.role = state.user.role;
+  document.getElementById('dashWrap').style.display='grid';
+  renderDashboard();
+}
+
+function doRegister(){
+  const name = document.getElementById('r_name').value.trim();
+  const email = document.getElementById('r_email').value.trim();
+  const pass = document.getElementById('r_pass').value.trim();
+  const role = document.getElementById('r_role').value;
+  if(!name || !email || !pass){ alert(LANG==='ar'?'عمر الحقول':'Fill fields'); return; }
+  closeModal();
+  state.user = {id: Date.now(), name, email, role};
+  state.role = role;
+  document.getElementById('dashWrap').style.display='grid';
+  renderDashboard();
+}
+
+/* ===== Simple camera preview (getUserMedia) ===== */
+const localVideo = document.getElementById('localVideo');
+let localStream = null;
+document.getElementById('startCam').addEventListener('click', async ()=> {
+  try{
+    localStream = await navigator.mediaDevices.getUserMedia({video:{width:640}, audio:true});
+    localVideo.srcObject = localStream;
+  }catch(err){
+    alert((LANG==='ar'?'يرجى السماح بالكاميرا/الميكروفون':'Please allow camera/microphone') + '\n' + err.message);
+  }
+});
+document.getElementById('stopCam').addEventListener('click', ()=> {
+  if(localStream){
+    localStream.getTracks().forEach(t=>t.stop());
+    localVideo.srcObject = null;
+    localStream = null;
+  }
+});
+
+/* ===== Join session (demo) ===== */
+document.getElementById('joinBtn').addEventListener('click', ()=> {
+  alert(LANG==='ar'?'هذه معاينة: الانضمام الحقيقي يحتاج backend و WebRTC.':'Demo only — real call requires backend & WebRTC.');
+});
+
+/* ===== Right panel buttons ===== */
+document.getElementById('openTodo').addEventListener('click', ()=> {
+  // if therapist, default auto mode when navigating from result page would be used.
+  // For demo: open todolist page with auto=false (user enters tasks) unless you want auto.
+  window.location.href = 'todolist.html?auto=false';
+});
+document.getElementById('openPatients').addEventListener('click', ()=> {
+  // open small modal with patients list
+  const listHtml = state.patients.map(p=>`<div class="list-item"><div>${p.name}<div class="muted">Mood: ${p.mood}</div></div><div><button class="small btn" onclick="openPatient(${p.id})">${LANG==='ar'?'فتح':'Open'}</button></div></div>`).join('');
+  showModal(`<h3 style="margin-top:0">${LANG==='ar'?'المرضى':'Patients'}</h3><div>${listHtml || '<div class="muted">No patients (demo)</div>'}</div><div style="margin-top:8px;display:flex;justify-content:flex-end"><button class="small secondary" onclick="closeModal()">${i18n[LANG].cancel}</button></div>`);
+});
+document.getElementById('openNotes').addEventListener('click', ()=> {
+  showModal(`<h3 style="margin-top:0">${i18n[LANG].notesTitle}</h3><textarea rows="6" placeholder="${LANG==='ar'?'أكتب ملاحظة عامة...':'Write a general note...'}"></textarea><div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn" onclick="closeModal()">${i18n[LANG].submit}</button><button class="small secondary" onclick="closeModal()">${i18n[LANG].cancel}</button></div>`);
+});
+
+/* ===== small utilities ===== */
+function formatDate(d){
+  const dd = new Date(d);
+  return dd.toLocaleString(LANG==='ar'?'ar-DZ':'en-US', {dateStyle:'short', timeStyle:'short'});
+}
+
+/* close modal when clicking outside */
+modal.addEventListener('click', (e)=> { if(e.target===modal) closeModal(); });
+
+/* initialize small things */
+(function init(){
+  // set lang text on some buttons that may not exist earlier
+  document.getElementById('startCam').textContent = i18n[LANG].startCam;
+  document.getElementById('stopCam').textContent = i18n[LANG].stopCam;
+  document.getElementById('joinBtn').textContent = i18n[LANG].joinBtn;
+})();
+</script>
+</body>
+</html>
